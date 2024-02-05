@@ -39,7 +39,7 @@ VISUAL_ENDPOINT=<YOUR_PROMPTFLOW_VISUAL_ENDPOINT>
 VISUAL_KEY=<YOUR_PROMPTFLOW_VISUAL_KEY>
 ```
 
-If you follow the [Contoso Chat](https://github.com/Azure-Samples/contoso-chat/) repo, you will have all of these endpoints set up already. If you want to use the Visual Chat feature, you will need to wait until GPT-4 Turbo with Vision is released.
+If you follow the [Contoso Chat](https://github.com/Azure-Samples/contoso-chat/) repo, you will have all of these endpoints set up already. If you want to use the Visual Chat feature, you will need to wait until GPT-4 Turbo with Vision is released. **Note:** The PROMPTFLOW_ENDPOINT and PROMPTFLOW_KEY environment variables are obtained from the _Deployment endpoint_ for the Contoso Chat application once it is completed. 
 
 ## Additional Features
 As part of this site we have added debug statements to the console to see the responses. For the grounded chat, you will see the following:
