@@ -1,22 +1,105 @@
 This is the Contoso Outdoors Company Website shown at Microsoft Ignite. It uses assets created by DALLE-3 and GPT-4. It is built with Next.js and Tailwind CSS.
 
-## Getting Started
+## 1. Deploy on Azure Static Web Aps
 
-First, run the development server:
+The [original repository](https://github.com/Azure-Samples/contoso-web) was adapted to make these changes:
+ - Add support for devcontainer (to launch in GitHub Codespaces)
+ - Resize images (to fit within Azure Static Web Apps free tier)
+ - Add Azure Static Web Apps GH Action (for automated deployment)
+ - Add support for Node Engine (specific version needed)
+
+In this version, we'll add support for [configuring repo for redeploy on demand](https://learn.microsoft.com/en-us/azure/static-web-apps/static-web-apps-cli-deploy#deploy-using-a-configuration-file) using Azure Static Web Apps CLI (`swa cli`). This allows learners to deploy a version of this app on demand, then update deployments from command-line (vs. GitHub Action). We can also use `swa cli` to explore local development in future. **The process involves 4 steps:**
+
+1. [Install](https://learn.microsoft.com/azure/static-web-apps/static-web-apps-cli-install) SWA CLI
+1. [Initialize](https://learn.microsoft.com/azure/static-web-apps/static-web-apps-cli-configuration#initialize-a-configuration-file) a Configuration File
+1. [Acquire](https://learn.microsoft.com/en-us/azure/static-web-apps/static-web-apps-cli-deploy#deployment-token) a deployment token
+1. [Deploy](https://learn.microsoft.com/en-us/azure/static-web-apps/static-web-apps-cli-deploy#deploy-using-a-configuration-file) the SWA to Azure
+
+Let's see this in action:
+
+```bash
+# Install SWA 
+npm install -g @azure/static-web-apps-cli
+
+# Validate Install
+swa --version
+1.1.7
+
+# Initialize a Configuration File (will guess settings)
+swa init
+Configuration successfully saved to swa-cli.config.json.
+
+# Run app locally
+swa start
+
+# Build static app
+swa build
+
+# Do the first install manually to set up resources
+# This requires Azure CLI (devcontainer has built-in support)
+az --version
+azure-cli 2.59.0
+
+# Set parameters
+export RANDOM_ID="$(openssl rand -hex 3)"
+export MY_RESOURCE_GROUP_NAME="contoso-web-rg-$RANDOM_ID"
+export REGION=EastUS2
+export MY_STATIC_WEB_APP_NAME="contoso-web-swa"
+
+# Log into Azure and select correct subscription
+az login --use-device-code
+az account set --subscription <subscription-id>
+
+## Verify settings
+az account show
+
+# Create Resource Group
+az group create --name $MY_RESOURCE_GROUP_NAME --location $REGION
+
+# Deploy this static web app the first time
+az staticwebapp create --name $MY_STATIC_WEB_APP_NAME --resource-group $MY_RESOURCE_GROUP_NAME --location $REGION 
+
+# Get deployed URL
+az staticwebapp show --name  $MY_STATIC_WEB_APP_NAME --resource-group $MY_RESOURCE_GROUP_NAME --query "defaultHostname" -o tsv
+
+# Get the deployment token from SWA - Overview - Manage deployment token
+export DEPLOYMENT_TOKEN=<deployment-token>
+
+# Future deploys are now simpler
+swa deploy --deployment-token $DEPLOYMENT_TOKEN  --env production
+Deploying to environment: production
+Deploying project to Azure Static Web Apps...
+⠧ Status: InProgress. Time: ...
+
+# This takes a while given there are many images to upload along with code
+# Just wait ...
+✖ Deployment Failed :(
+✖ Deployment Failure Reason: Web app warm up timed out. Please try again later.
+
+```
+
+If you visit the Azure Portal and look up the Azure Resource Group you created, you should have a single SWA resource. Visiting the resource page, you should see the status of the application as _Uploading_. Wait till done then visit the associated URL to see the live site preview.
+
+![SWA Deploy](./images/contoso-web-deploy.png)
+
+---
+
+## 2. Preview App Locally
+
+Run the default Next.js dev server to view the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-If you open [http://localhost:3000](http://localhost:3000) with your browser you should get the following result:
+Open the default preview URL [http://localhost:3000](http://localhost:3000) and you should see:
 
 ![Contoso Outdoors Home Page](images/contosoweb.png "Contoso Outdoors Home Page")
+
+
+---
+
+## 3. Use The App
 
 Click on the chat button indicated above to start a chat session. There are three different chat types you can try:
 
