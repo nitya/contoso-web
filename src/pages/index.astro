@@ -1,0 +1,53 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CategoryCarousel from "../components/CategoryCarousel.astro";
+import { getCategories } from "../lib/catalog";
+
+const categories = await getCategories();
+---
+
+<BaseLayout>
+  <section class="hero">
+    <img
+      class="hero__image"
+      src="/images/fullhero.png"
+      alt=""
+      fetchpriority="high"
+      width="1600"
+      height="720"
+    />
+    <div class="hero__shade"></div>
+    <div class="page-container hero__content">
+      <p class="eyebrow eyebrow--light">Make room for outside</p>
+      <h1>Find your next<br />way out there.</h1>
+      <p class="hero__copy">
+        Gear for slow mornings, big miles, and everything in between.
+      </p>
+      <a class="button button--gold" href="/products/">
+        All Products
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"></path></svg>
+      </a>
+    </div>
+    <span class="hero__caption">The outdoors is yours to explore.</span>
+  </section>
+
+  <section class="page-container collections" aria-label="Shop by category">
+    <div class="section-intro">
+      <div>
+        <p class="eyebrow">Built for the long way around</p>
+        <h2>Good gear. Better days outside.</h2>
+      </div>
+      <a class="button button--outline" href="/products/">All Products</a>
+    </div>
+
+    {categories.map((category) => <CategoryCarousel category={category} />)}
+
+    <div class="collections__all">
+      <p>Ready to make a little more room for adventure?</p>
+      <a class="button button--primary" href="/products/">
+        Browse All Products
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"></path></svg>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

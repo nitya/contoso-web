@@ -1,0 +1,82 @@
+<aside class="ask-contoso">
+  <button
+    class="ask-launcher"
+    type="button"
+    data-chat-open
+    aria-haspopup="dialog"
+    aria-controls="ask-dialog"
+  >
+    <span class="ask-launcher__icon" aria-hidden="true">
+      <svg viewBox="0 0 32 32" fill="none">
+        <path d="M16 3.5c-7 0-12.5 4.8-12.5 10.8 0 3.1 1.5 5.9 4.1 7.8L6 28l7-3.1c1 .3 2 .4 3 .4 7 0 12.5-4.8 12.5-10.9S23 3.5 16 3.5Z" fill="currentColor" />
+        <circle cx="11" cy="14.5" r="1.5" fill="var(--page)" />
+        <circle cx="16" cy="14.5" r="1.5" fill="var(--page)" />
+        <circle cx="21" cy="14.5" r="1.5" fill="var(--page)" />
+      </svg>
+    </span>
+    <span>Ask Contoso</span>
+  </button>
+
+  <dialog class="chat-dialog" id="ask-dialog" aria-labelledby="ask-title">
+    <div class="chat-dialog__panel">
+      <header class="chat-header">
+        <div class="chat-header__identity">
+          <span class="chat-header__avatar" aria-hidden="true">C</span>
+          <div>
+            <h2 id="ask-title">Ask Contoso</h2>
+            <p>Here to help you find your next adventure</p>
+          </div>
+        </div>
+        <button
+          class="icon-button"
+          type="button"
+          data-chat-close
+          aria-label="Close Ask Contoso"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+        </button>
+      </header>
+
+      <ol class="chat-messages" data-chat-messages aria-live="polite" aria-relevant="additions">
+        <li class="chat-message chat-message--assistant">
+          <span class="chat-message__name">Contoso</span>
+          <p>Hi there! Ask me about outdoor gear, fit, or getting ready for a trip.</p>
+        </li>
+      </ol>
+
+      <p class="chat-notice">Preview chat is local only and is not connected to a live agent.</p>
+      <p class="voice-status" data-voice-status role="status" aria-live="polite"></p>
+
+      <form class="chat-composer" data-chat-form>
+        <label class="sr-only" for="chat-input">Message Ask Contoso</label>
+        <textarea
+          id="chat-input"
+          name="message"
+          rows="1"
+          maxlength="500"
+          placeholder="Ask about your next adventure..."
+          data-chat-input
+          required
+        ></textarea>
+        <div class="chat-composer__actions">
+          <button
+            class="icon-button voice-button"
+            type="button"
+            data-voice-button
+            aria-label="Start voice input"
+            aria-pressed="false"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="9" y="3" width="6" height="12" rx="3"></rect>
+              <path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8"></path>
+            </svg>
+          </button>
+          <button class="button button--primary chat-send" type="submit">
+            Send
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"></path></svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+</aside>

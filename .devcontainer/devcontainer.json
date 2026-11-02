@@ -1,38 +1,37 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
-	"name": "Contoso Outdoor",
-	
-	"image": "mcr.microsoft.com/devcontainers/universal:2",
-	"hostRequirements": {
-	  "cpus": 4
-	},
-
-	"waitFor": "onCreateCommand",
-	"updateContentCommand": "",
-	"postCreateCommand": "bash .devcontainer/post-create-command.sh",
-	"postAttachCommand": "",
-
-	"customizations": {
-	  "codespaces": {
-		"openFiles": [
-		  "README.md"
-		]
-	},
-	"vscode": {
-		"extensions": [
-			"ms-vscode.vscode-node-azure-pack"
-		]
-	}
-	},
-
-	"portsAttributes": {
-	  "3000": {
-		"label": "Contoso Outdoor App",
-		"onAutoForward": "openPreview"
-	  }
-	},
-	"forwardPorts": [
-		3000
-	]
-  }
+  "name": "Contoso Outdoors",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "hostRequirements": {
+    "cpus": 4
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24"
+    }
+  },
+  "waitFor": "onCreateCommand",
+  "updateContentCommand": "",
+  "postCreateCommand": "bash .devcontainer/post-create-command.sh",
+  "postAttachCommand": "",
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "README.md"
+      ]
+    },
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-node-azure-pack"
+      ]
+    }
+  },
+  "portsAttributes": {
+    "4321": {
+      "label": "Contoso Outdoors Astro",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "forwardPorts": [
+    4321
+  ]
+}

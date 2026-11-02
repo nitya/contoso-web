@@ -1,0 +1,9 @@
+.git
+.astro
+node_modules
+dist
+coverage
+.env
+.env.*
+local.env
+npm-debug.log*

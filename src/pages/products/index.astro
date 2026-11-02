@@ -1,0 +1,63 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import { getCategories, getProducts } from "../../lib/catalog";
+
+const [categories, products] = await Promise.all([getCategories(), getProducts()]);
+---
+
+<BaseLayout
+  title="All Products | Contoso Outdoors"
+  description="Explore the full collection of Contoso Outdoors tents, packs, clothing, footwear, and camping gear."
+>
+  <section class="page-container catalog-page">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">Find your next favorite</p>
+        <h1>All Products</h1>
+      </div>
+      <p>Thoughtful gear for weekends away and everyday outside.</p>
+    </div>
+
+    <section class="catalog-filters" aria-label="Filter products">
+      <div class="catalog-filters__top">
+        <div class="filter-group" role="group" aria-label="Filter by category">
+          <button class="filter-chip" type="button" data-category-filter="all" aria-pressed="true">
+            All gear
+          </button>
+          {categories.map((category) => (
+            <button
+              class="filter-chip"
+              type="button"
+              data-category-filter={category.slug}
+              aria-pressed="false"
+            >
+              {category.name}
+            </button>
+          ))}
+        </div>
+        <label class="search-field">
+          <span class="sr-only">Search products</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+          <input
+            type="search"
+            name="q"
+            placeholder="Search gear"
+            autocomplete="off"
+            data-product-search
+          />
+        </label>
+      </div>
+      <p class="catalog-count" data-results-count aria-live="polite">
+        Showing {products.length} products
+      </p>
+    </section>
+
+    <div class="product-grid" data-product-grid>
+      {products.map((product) => <ProductCard product={product} />)}
+    </div>
+    <p class="empty-state" data-empty-state hidden>
+      No gear matched your search. Try another word or category.
+    </p>
+  </section>
+</BaseLayout>

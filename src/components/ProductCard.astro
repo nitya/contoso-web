@@ -1,0 +1,44 @@
+---
+import type { Product } from "../lib/catalog";
+import { formatPrice } from "../lib/catalog";
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+const categoryKey = product.category
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, "-")
+  .replace(/^-|-$/g, "");
+const searchText = `${product.name} ${product.brand} ${product.category} ${product.description}`.toLowerCase();
+---
+
+<article
+  class="product-card"
+  data-product-card
+  data-category={categoryKey}
+  data-search={searchText}
+>
+  <a
+    class="product-card__link"
+    href={`/products/${product.slug}/`}
+    aria-label={`${product.name}, ${formatPrice(product.price)}`}
+  >
+    <div class="product-card__image-wrap">
+      <img
+        class="product-card__image"
+        src={product.images[0]}
+        alt={product.name}
+        width="640"
+        height="640"
+        loading="lazy"
+      />
+      <span class="product-card__category">{product.category}</span>
+    </div>
+    <div class="product-card__details">
+      <h3>{product.name}</h3>
+      <p>{formatPrice(product.price)}</p>
+    </div>
+  </a>
+</article>
