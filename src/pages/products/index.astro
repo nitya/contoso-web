@@ -1,0 +1,93 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import categories from "../../../public/categories.json";
+
+const allProducts = categories.flatMap((category) => category.products);
+---
+
+<Layout title="All Products | Contoso Outdoors">
+  <Header active="shop" />
+
+  <main class="catalog-page">
+    <div class="catalog-heading">
+      <div>
+        <p class="eyebrow">The complete collection</p>
+        <h1>All products</h1>
+      </div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6"></circle>
+          <path d="m16 16 4 4"></path>
+        </svg>
+        <label class="sr-only" for="product-search">Search products</label>
+        <input id="product-search" type="search" placeholder="Search gear" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="catalog-filters" aria-label="Product filters">
+        <span class="catalog-filter-label">Categories</span>
+        <button class="filter-button active" type="button" data-filter="All">All gear <span>{allProducts.length}</span></button>
+        {categories.map((category) => (
+          <button class="filter-button" type="button" data-filter={category.name}>
+            {category.name}
+            <span>{category.products.length}</span>
+          </button>
+        ))}
+    </div>
+
+    <div class="product-grid" id="product-grid">
+      {allProducts.map((product) => (
+        <div class="product-grid-item" data-name={product.name.toLowerCase()} data-category={product.category}>
+          <ProductCard product={product} />
+        </div>
+      ))}
+    </div>
+    <p class="no-results" id="no-results" hidden>No gear matches that search.</p>
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand footer-brand" href="/" aria-label="Contoso Outdoors home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 44 44"><path d="M8 31 22 8l14 23H8Z"></path><path d="m15 31 7-11 7 11"></path></svg>
+      </span>
+      <span><strong>CONTOSO</strong><small>OUTDOORS</small></span>
+    </a>
+    <p>Equipment for a life outside.</p>
+  </footer>
+</Layout>
+
+<script>
+  const filterButtons = document.querySelectorAll<HTMLButtonElement>(".filter-button");
+  const searchInput = document.querySelector<HTMLInputElement>("#product-search");
+  const productItems = document.querySelectorAll<HTMLElement>(".product-grid-item");
+  const noResults = document.querySelector<HTMLElement>("#no-results");
+  let activeCategory = "All";
+
+  function updateProducts() {
+    const query = searchInput?.value.trim().toLowerCase() ?? "";
+    let visible = 0;
+
+    productItems.forEach((item) => {
+      const categoryMatches = activeCategory === "All" || item.dataset.category === activeCategory;
+      const searchMatches = !query || item.dataset.name?.includes(query);
+      const show = categoryMatches && searchMatches;
+      item.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    if (noResults) noResults.hidden = visible !== 0;
+  }
+
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      filterButtons.forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+      activeCategory = button.dataset.filter ?? "All";
+      updateProducts();
+    });
+  });
+
+  searchInput?.addEventListener("input", updateProducts);
+</script>

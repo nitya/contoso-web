@@ -1,0 +1,169 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import categories from "../../../public/categories.json";
+
+export function getStaticPaths() {
+  const products = categories.flatMap((category) => category.products);
+  return products.map((product) => ({
+    params: { slug: product.slug },
+    props: { product, products },
+  }));
+}
+
+const { product, products } = Astro.props;
+const related = products
+  .filter((item) => item.category === product.category && item.slug !== product.slug)
+  .slice(0, 3);
+const productIndex = products.findIndex((item) => item.slug === product.slug);
+const rating = 4.6 + (productIndex % 4) * 0.1;
+---
+
+<Layout title={`${product.name} | Contoso Outdoors`} description={product.description}>
+  <Header active="shop" />
+
+  <main class="product-page">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span>/</span>
+      <a href="/#shop">{product.category}</a>
+      <span>/</span>
+      <span>{product.name}</span>
+    </nav>
+
+    <section class="product-detail">
+      <div class="gallery">
+        <div class="gallery-main">
+          <span class="gallery-badge">Best seller</span>
+          <img id="main-product-image" src={product.images[0]} alt={product.name} />
+        </div>
+        <div class="gallery-thumbnails" aria-label="Product images">
+          {product.images.slice(0, 5).map((image, index) => (
+            <button class:list={["thumbnail", index === 0 && "active"]} type="button" data-image={image} aria-label={`View image ${index + 1}`}>
+              <img src={image} alt="" loading="lazy" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div class="product-summary">
+        <p class="eyebrow">{product.brand}</p>
+        <h1>{product.name}</h1>
+        <div class="rating-row">
+          <span class="stars" aria-label={`${rating.toFixed(1)} out of 5 stars`}>★★★★★</span>
+          <strong>{rating.toFixed(1)}</strong>
+          <a href="#reviews">({24 + productIndex} reviews)</a>
+        </div>
+        <p class="detail-price">${product.price.toFixed(2)}</p>
+        <p class="detail-description">{product.description}</p>
+
+        <div class="purchase-options">
+          <label for="quantity">Quantity</label>
+          <div class="quantity-control">
+            <button type="button" id="decrease-quantity" aria-label="Decrease quantity">−</button>
+            <input id="quantity" type="number" value="1" min="1" max="10" />
+            <button type="button" id="increase-quantity" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+
+        <button class="add-to-cart" type="button" id="add-to-cart">
+          <span>Add to cart</span>
+          <strong>${product.price.toFixed(2)}</strong>
+        </button>
+
+        <div class="delivery-note">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h11v11H3zM14 10h4l3 3v4h-7z"></path><circle cx="7" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg>
+          <p><strong>Free delivery</strong><br />Ships in 1–2 business days</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="product-story" aria-labelledby="details-title">
+      <div>
+        <p class="eyebrow">Built to go farther</p>
+        <h2 id="details-title">The details</h2>
+      </div>
+      <div class="story-grid">
+        <article>
+          <span>01</span>
+          <h3>Designed for the route</h3>
+          <p>Purposeful materials and practical details help this gear keep pace from the trailhead to camp.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Easy to pack</h3>
+          <p>Compact, organized, and straightforward to set up or stow between adventures.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Made for repeat use</h3>
+          <p>Durable construction supports years of weekends, long miles, and changing conditions.</p>
+        </article>
+      </div>
+    </section>
+
+    {related.length > 0 && (
+      <section class="related-products" aria-labelledby="related-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Keep exploring</p>
+            <h2 id="related-title">You may also like</h2>
+          </div>
+        </div>
+        <div class="related-grid">
+          {related.map((item) => (
+            <a class="related-card" href={`/products/${item.slug}/`}>
+              <img src={item.images[0]} alt={item.name} loading="lazy" />
+              <p>{item.brand}</p>
+              <h3>{item.name}</h3>
+              <strong>${item.price.toFixed(2)}</strong>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand footer-brand" href="/" aria-label="Contoso Outdoors home">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 44 44"><path d="M8 31 22 8l14 23H8Z"></path><path d="m15 31 7-11 7 11"></path></svg></span>
+      <span><strong>CONTOSO</strong><small>OUTDOORS</small></span>
+    </a>
+    <p>Equipment for a life outside.</p>
+  </footer>
+</Layout>
+
+<script>
+  const mainImage = document.querySelector<HTMLImageElement>("#main-product-image");
+  const thumbnails = document.querySelectorAll<HTMLButtonElement>(".thumbnail");
+  thumbnails.forEach((thumbnail) => {
+    thumbnail.addEventListener("click", () => {
+      thumbnails.forEach((item) => item.classList.remove("active"));
+      thumbnail.classList.add("active");
+      if (mainImage) mainImage.src = thumbnail.dataset.image ?? "";
+    });
+  });
+
+  const quantity = document.querySelector<HTMLInputElement>("#quantity");
+  const decrease = document.querySelector<HTMLButtonElement>("#decrease-quantity");
+  const increase = document.querySelector<HTMLButtonElement>("#increase-quantity");
+
+  decrease?.addEventListener("click", () => {
+    if (!quantity) return;
+    quantity.value = String(Math.max(1, Number(quantity.value) - 1));
+  });
+  increase?.addEventListener("click", () => {
+    if (!quantity) return;
+    quantity.value = String(Math.min(10, Number(quantity.value) + 1));
+  });
+
+  const addToCart = document.querySelector<HTMLButtonElement>("#add-to-cart");
+  addToCart?.addEventListener("click", () => {
+    addToCart.classList.add("added");
+    addToCart.querySelector("span")!.textContent = "Added";
+    window.setTimeout(() => {
+      addToCart.classList.remove("added");
+      addToCart.querySelector("span")!.textContent = "Add to cart";
+    }, 900);
+  });
+</script>

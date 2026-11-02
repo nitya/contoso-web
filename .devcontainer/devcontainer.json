@@ -27,12 +27,12 @@
 	},
 
 	"portsAttributes": {
-	  "3000": {
+	  "4321": {
 		"label": "Contoso Outdoor App",
 		"onAutoForward": "openPreview"
 	  }
 	},
 	"forwardPorts": [
-		3000
+		4321
 	]
   }

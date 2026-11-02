@@ -1,59 +1,28 @@
-This is the Contoso Outdoors Company Website shown at Microsoft Ignite. It uses assets created by DALLE-3 and GPT-4. It is built with Next.js and Tailwind CSS. 
+# Contoso Outdoors
 
-## Getting Started
+Contoso Outdoors is a modern Astro storefront using the original Contoso product catalog and image assets.
 
-First, run the development server:
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-If you open [http://localhost:3000](http://localhost:3000) with your browser you should get the following result:
+The development server is available at `http://localhost:4321`.
 
-![Contoso Outdoors Home Page](images/contosoweb.png "Contoso Outdoors Home Page")
-
-Click on the chat button indicated above to start a chat session. There are three different chat types you can try:
-
-- Regular Chat using prompt flow (you can set that up using the  [Contoso Chat](https://github.com/Azure-Samples/contoso-chat/) repo). This is the default chat type.
-- Grounded chat using the "Add Your Data" feature inside of the Azure AI Studio playground (if you follow the instructions in the [Contoso Chat](https://github.com/Azure-Samples/contoso-chat/) repo, you will have this set up already). This can be enabled by adding `?type=grounded` to the URL. For example, `http://localhost:3000/?type=grounded`
-- Visual Chat - this is the same UI that was shown at the Microsoft Ignite conference. This can use either video capture or an image upload. This can be enabled by adding `?type=visual` to the URL. For example, `http://localhost:3000/?type=visual`. If you want to use video capture, you can use `?type=video` instead. For example, `http://localhost:3000/?type=video`. (Instructions for how to set this prompt flow up are forthcoming as soon as GPT-4 Turbo with Vision is released).
-
-## Setting up Endpoints
-
-In order to use the Contoso Outdoors website, you will need to set up the following endpoints in a `.env` file in the root of the project:
+## Build
 
 ```bash
-CONTOSO_SEARCH_ENDPOINT=<YOUR_SEARCH_ENDPOINT>
-CONTOSO_SEARCH_KEY=<YOUR_SEARCH_KEY>
-CONTOSO_AISERVICES_ENDPOINT=<YOUR_AI_SERVICES_ENDPOINT>
-CONTOSO_AISERVICES_KEY=<YOUR_AI_SERVICES_KEY>
-PROMPTFLOW_ENDPOINT=<YOUR_PROMPTFLOW_ENDPOINT>
-PROMPTFLOW_KEY=<YOUR_PROMPTFLOW_KEY>
-VISUAL_ENDPOINT=<YOUR_PROMPTFLOW_VISUAL_ENDPOINT>
-VISUAL_KEY=<YOUR_PROMPTFLOW_VISUAL_KEY>
+npm run build
+npm run preview
 ```
 
-If you follow the [Contoso Chat](https://github.com/Azure-Samples/contoso-chat/) repo, you will have all of these endpoints set up already. If you want to use the Visual Chat feature, you will need to wait until GPT-4 Turbo with Vision is released.
+The production site is emitted to `dist/`.
 
-## Additional Features
-As part of this site we have added debug statements to the console to see the responses. For the grounded chat, you will see the following:
+## Data
 
-![Grounded Chat Debug](images/grounded.png "Grounded Chat Debug")
-
-For the standard prompt flow chat you will see the following:
-
-![Prompt Flow Chat Debug](images/promptflow.png "Prompt Flow Chat Debug")
-
-This is useful for debugging purposes and shows you what is being sent to the individual endpoints.
-
-## Things to do
-Couple of things I would like to do with this repo:
-
-1. Change to streaming chat output instead of waiting for the entire response to come back.
-2. Any other ideas? Let me know!
+- `public/categories.json` defines the storefront category and product groups.
+- `public/products.json` contains the complete product catalog.
+- `public/images/` contains product and hero imagery.
+- `public/manuals/` contains the original product manuals.

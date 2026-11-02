@@ -1,0 +1,106 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "Discover dependable outdoor gear for every kind of adventure.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta id="theme-color" name="theme-color" content="#faf6df" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <script is:inline>
+      const savedTheme = localStorage.getItem("contoso-theme");
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      const theme = savedTheme === "dark" || savedTheme === "light" ? savedTheme : systemTheme;
+      document.documentElement.dataset.theme = theme;
+      document.querySelector("#theme-color")?.setAttribute("content", theme === "dark" ? "#17352f" : "#faf6df");
+    </script>
+  </head>
+  <body>
+    <slot />
+    <aside class="ai-chat-panel" id="ai-chat-panel" aria-labelledby="ai-chat-title" hidden>
+      <header class="ai-chat-header">
+        <div>
+          <p>CONTOSO ASSISTANT</p>
+          <h2 id="ai-chat-title">Ask Contoso</h2>
+        </div>
+        <button class="ai-chat-close" type="button" aria-label="Close Ask Contoso">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+        </button>
+      </header>
+      <div class="ai-chat-messages" aria-live="polite">
+        <p class="ai-chat-message">Hi, I’m Contoso. Tell me what kind of adventure you’re planning.</p>
+      </div>
+      <form class="ai-chat-form">
+        <label class="sr-only" for="ai-chat-input">Message Contoso</label>
+        <input id="ai-chat-input" name="message" type="text" placeholder="Ask about gear…" autocomplete="off" />
+        <button type="submit" aria-label="Send message">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"></path></svg>
+        </button>
+      </form>
+    </aside>
+
+    <button class="ai-chat-button" type="button" aria-controls="ai-chat-panel" aria-expanded="false" aria-label="Open Ask Contoso">
+      <span class="ai-chat-shadow" aria-hidden="true"></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 5.5h14v11H9l-4 3v-14Z"></path>
+        <circle cx="9" cy="11" r=".8"></circle>
+        <circle cx="12" cy="11" r=".8"></circle>
+        <circle cx="15" cy="11" r=".8"></circle>
+      </svg>
+      <span class="ai-chat-label">Ask Contoso</span>
+    </button>
+
+    <script>
+      const chatButton = document.querySelector<HTMLButtonElement>(".ai-chat-button");
+      const chatPanel = document.querySelector<HTMLElement>(".ai-chat-panel");
+      const chatClose = document.querySelector<HTMLButtonElement>(".ai-chat-close");
+      const chatForm = document.querySelector<HTMLFormElement>(".ai-chat-form");
+      const chatInput = document.querySelector<HTMLInputElement>("#ai-chat-input");
+      const chatMessages = document.querySelector<HTMLElement>(".ai-chat-messages");
+
+      function setChatOpen(open: boolean) {
+        if (!chatPanel || !chatButton) return;
+        chatPanel.hidden = !open;
+        chatButton.setAttribute("aria-expanded", open ? "true" : "false");
+        chatButton.setAttribute("aria-label", open ? "Close Ask Contoso" : "Open Ask Contoso");
+        if (open) chatInput?.focus();
+      }
+
+      chatButton?.addEventListener("click", () => {
+        setChatOpen(chatPanel?.hidden ?? true);
+      });
+      chatClose?.addEventListener("click", () => setChatOpen(false));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") setChatOpen(false);
+      });
+
+      chatForm?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const message = chatInput?.value.trim();
+        if (!message || !chatMessages) return;
+
+        const userMessage = document.createElement("p");
+        userMessage.className = "ai-chat-message ai-chat-message-user";
+        userMessage.textContent = message;
+        chatMessages.append(userMessage);
+
+        chatInput!.value = "";
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      });
+    </script>
+  </body>
+</html>
