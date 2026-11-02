@@ -44,13 +44,22 @@ const {
       <div class="ai-chat-messages" aria-live="polite">
         <p class="ai-chat-message">Hi, I’m Contoso. Tell me what kind of adventure you’re planning.</p>
       </div>
-      <form class="ai-chat-form">
-        <label class="sr-only" for="ai-chat-input">Message Contoso</label>
-        <input id="ai-chat-input" name="message" type="text" placeholder="Ask about gear…" autocomplete="off" />
-        <button type="submit" aria-label="Send message">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"></path></svg>
-        </button>
-      </form>
+      <div class="ai-chat-composer">
+        <form class="ai-chat-form">
+          <label class="sr-only" for="ai-chat-input">Message Contoso</label>
+          <input id="ai-chat-input" name="message" type="text" placeholder="Ask about gear…" autocomplete="off" />
+          <button class="ai-chat-mic" type="button" aria-label="Ask Contoso with your voice" aria-pressed="false" title="Use voice input">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="9" y="3" width="6" height="11" rx="3"></rect>
+              <path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"></path>
+            </svg>
+          </button>
+          <button class="ai-chat-send" type="submit" aria-label="Send message">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"></path></svg>
+          </button>
+        </form>
+        <p class="ai-voice-status" role="status" aria-live="polite"></p>
+      </div>
     </aside>
 
     <button class="ai-chat-button" type="button" aria-controls="ai-chat-panel" aria-expanded="false" aria-label="Open Ask Contoso">
@@ -71,6 +80,65 @@ const {
       const chatForm = document.querySelector<HTMLFormElement>(".ai-chat-form");
       const chatInput = document.querySelector<HTMLInputElement>("#ai-chat-input");
       const chatMessages = document.querySelector<HTMLElement>(".ai-chat-messages");
+      const micButton = document.querySelector<HTMLButtonElement>(".ai-chat-mic");
+      const voiceStatus = document.querySelector<HTMLElement>(".ai-voice-status");
+
+      interface SpeechRecognitionAlternativeLike {
+        transcript: string;
+      }
+
+      interface SpeechRecognitionResultLike {
+        isFinal: boolean;
+        length: number;
+        [index: number]: SpeechRecognitionAlternativeLike;
+      }
+
+      interface SpeechRecognitionEventLike extends Event {
+        resultIndex: number;
+        results: {
+          length: number;
+          [index: number]: SpeechRecognitionResultLike;
+        };
+      }
+
+      interface SpeechRecognitionErrorEventLike extends Event {
+        error: string;
+      }
+
+      interface SpeechRecognitionLike {
+        continuous: boolean;
+        interimResults: boolean;
+        lang: string;
+        maxAlternatives: number;
+        onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+        onend: (() => void) | null;
+        onerror: ((event: SpeechRecognitionErrorEventLike) => void) | null;
+        start: () => void;
+        stop: () => void;
+      }
+
+      type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+
+      const speechWindow = window as typeof window & {
+        SpeechRecognition?: SpeechRecognitionConstructor;
+        webkitSpeechRecognition?: SpeechRecognitionConstructor;
+      };
+      const SpeechRecognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+      let recognition: SpeechRecognitionLike | null = null;
+      let voiceSubmitted = false;
+
+      function setVoiceStatus(message: string) {
+        if (voiceStatus) voiceStatus.textContent = message;
+      }
+
+      function setListening(listening: boolean) {
+        micButton?.classList.toggle("is-listening", listening);
+        micButton?.setAttribute("aria-pressed", listening ? "true" : "false");
+        micButton?.setAttribute(
+          "aria-label",
+          listening ? "Stop voice input" : "Ask Contoso with your voice",
+        );
+      }
 
       function setChatOpen(open: boolean) {
         if (!chatPanel || !chatButton) return;
@@ -100,7 +168,95 @@ const {
 
         chatInput!.value = "";
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        setVoiceStatus("");
       });
+
+      if (!SpeechRecognition) {
+        if (micButton) {
+          micButton.disabled = true;
+          micButton.title = "Voice input is not supported in this browser";
+          micButton.setAttribute("aria-label", "Voice input unavailable");
+        }
+        setVoiceStatus("Voice input is not supported in this browser.");
+      } else {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = navigator.language || "en-US";
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event) => {
+          let finalTranscript = "";
+          let interimTranscript = "";
+
+          for (let index = event.resultIndex; index < event.results.length; index += 1) {
+            const result = event.results[index];
+            const transcript = result[0]?.transcript ?? "";
+            if (result.isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+
+          if (chatInput) {
+            chatInput.value = `${finalTranscript}${interimTranscript}`.trim();
+            chatInput.setSelectionRange(chatInput.value.length, chatInput.value.length);
+          }
+
+          if (finalTranscript.trim() && !voiceSubmitted) {
+            const submittedTranscript = finalTranscript.trim();
+            chatInput!.value = submittedTranscript;
+            voiceSubmitted = true;
+            setVoiceStatus("Submitting your question…");
+            window.setTimeout(() => chatForm?.requestSubmit(), 120);
+          } else if (interimTranscript) {
+            setVoiceStatus("Listening…");
+          }
+        };
+
+        recognition.onend = () => {
+          setListening(false);
+          if (!voiceSubmitted) {
+            const draft = chatInput?.value.trim() ?? "";
+            if (draft) {
+              setVoiceStatus("Voice captured. Press send or tap the mic again.");
+            } else {
+              setVoiceStatus("");
+            }
+          }
+        };
+
+        recognition.onerror = (event) => {
+          setListening(false);
+          const messages: Record<string, string> = {
+            "not-allowed": "Microphone access was denied. Allow microphone access and try again.",
+            "audio-capture": "No microphone was found. Connect a microphone and try again.",
+            "no-speech": "No speech was detected. Tap the mic and try again.",
+            "network": "Voice recognition could not reach the network.",
+            "aborted": "Voice input was stopped.",
+          };
+          setVoiceStatus(messages[event.error] ?? "Voice input could not be started.");
+        };
+
+        micButton?.addEventListener("click", () => {
+          if (!recognition) return;
+          if (micButton.classList.contains("is-listening")) {
+            recognition.stop();
+            return;
+          }
+
+          voiceSubmitted = false;
+          setListening(true);
+          setVoiceStatus("Listening…");
+          try {
+            recognition.start();
+          } catch {
+            setListening(false);
+            setVoiceStatus("Voice input is already active.");
+          }
+        });
+      }
     </script>
   </body>
 </html>

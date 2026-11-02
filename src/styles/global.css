@@ -1320,11 +1320,8 @@ img {
 
 .ai-chat-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 42px;
+  grid-template-columns: minmax(0, 1fr) 42px 42px;
   gap: 8px;
-  padding: 12px;
-  border-top: 1px solid var(--line);
-  background: var(--paper);
 }
 
 .ai-chat-form input {
@@ -1342,7 +1339,14 @@ img {
   color: var(--muted);
 }
 
-.ai-chat-form button {
+.ai-chat-composer {
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.ai-chat-form .ai-chat-send,
+.ai-chat-form .ai-chat-mic {
   width: 42px;
   height: 42px;
   display: grid;
@@ -1355,13 +1359,72 @@ img {
   box-shadow: 0 4px 0 var(--orange-hover);
 }
 
-.ai-chat-form button svg {
+.ai-chat-form .ai-chat-send svg,
+.ai-chat-form .ai-chat-mic svg {
   width: 18px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.ai-chat-form .ai-chat-mic {
+  border: 1px solid var(--line);
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: 0 4px 0 var(--line);
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.ai-chat-form .ai-chat-mic:hover {
+  background: var(--sage);
+}
+
+.ai-chat-form .ai-chat-mic:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.ai-chat-form .ai-chat-mic.is-listening {
+  background: var(--blushed-brick);
+  color: #ffffff;
+  border-color: var(--blushed-brick);
+  box-shadow:
+    0 4px 0 color-mix(in srgb, var(--blushed-brick) 72%, #60252a),
+    0 0 0 5px color-mix(in srgb, var(--blushed-brick) 24%, transparent);
+  transform: translateY(-2px);
+  animation: mic-pulse 1.2s ease-in-out infinite;
+}
+
+.ai-chat-form .ai-chat-mic svg {
+  fill: none;
+}
+
+.ai-chat-form .ai-chat-mic.is-listening svg {
+  fill: currentColor;
+  stroke-width: 1.5;
+}
+
+.ai-voice-status {
+  min-height: 15px;
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+@keyframes mic-pulse {
+  0%, 100% {
+    box-shadow:
+      0 4px 0 color-mix(in srgb, var(--blushed-brick) 72%, #60252a),
+      0 0 0 5px color-mix(in srgb, var(--blushed-brick) 24%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 4px 0 color-mix(in srgb, var(--blushed-brick) 72%, #60252a),
+      0 0 0 9px color-mix(in srgb, var(--blushed-brick) 8%, transparent);
+  }
 }
 
 :root[data-theme="dark"] .ai-chat-button {
